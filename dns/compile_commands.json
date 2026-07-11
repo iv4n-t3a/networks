@@ -1,0 +1,92 @@
+[
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -I/home/ivan/Projects/netstack/dns/build/_deps/bshoshany_thread_pool-src/include -I/home/ivan/Projects/netstack/dns/build/_deps/argparse-src/include -std=gnu++20 -o CMakeFiles/dns-server.dir/src/main.cpp.o -c /home/ivan/Projects/netstack/dns/src/main.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/src/main.cpp",
+  "output": "CMakeFiles/dns-server.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -I/home/ivan/Projects/netstack/dns/build/_deps/bshoshany_thread_pool-src/include -I/home/ivan/Projects/netstack/dns/build/_deps/argparse-src/include -std=gnu++20 -o CMakeFiles/dns-server.dir/src/server.cpp.o -c /home/ivan/Projects/netstack/dns/src/server.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/src/server.cpp",
+  "output": "CMakeFiles/dns-server.dir/src/server.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/Error.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/Error.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/Error.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/Error.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/SocketAddress.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketAddress.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketAddress.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/SocketAddress.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/SocketFunctions.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketFunctions.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketFunctions.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/SocketFunctions.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/SocketHandler.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketHandler.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/SocketHandler.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/SocketHandler.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/Address.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Address.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Address.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/Address.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/Definitions.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Definitions.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Definitions.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/Definitions.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/Receiver.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Receiver.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Receiver.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/Receiver.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/Sender.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Sender.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Sender.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/Sender.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/Socket.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Socket.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/Socket.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/Socket.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/core/SocketContext.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/SocketContext.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/core/SocketContext.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/core/SocketContext.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/tcp/TcpClient.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/tcp/TcpClient.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/tcp/TcpClient.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/tcp/TcpClient.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/tcp/TcpServer.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/tcp/TcpServer.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/tcp/TcpServer.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/tcp/TcpServer.cpp.o"
+},
+{
+  "directory": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-build/src",
+  "command": "/usr/bin/c++  -I/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/header -std=c++20 -o CMakeFiles/MinimalSocket.dir/src/udp/UdpSocket.cpp.o -c /home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/udp/UdpSocket.cpp",
+  "file": "/home/ivan/Projects/netstack/dns/build/_deps/min_sock-src/src/src/udp/UdpSocket.cpp",
+  "output": "_deps/min_sock-build/src/CMakeFiles/MinimalSocket.dir/src/udp/UdpSocket.cpp.o"
+}
+]
