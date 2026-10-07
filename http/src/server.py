@@ -1,42 +1,18 @@
 import asyncio
 import socket
 
-from request import ParsingError, Request, parse_http_request
-from response import Response, encode_response
+from notes import NotesApp
+from request import ParsingError, parse_http_request
+from response import encode_response
 
 _READ_CHUNK_SIZE = 64 * 1024
-
-
-def _make_response(request: Request) -> Response:
-    """Builds the echo response for a parsed request.
-
-    The status comes from the x-status header (default 200) and response
-    headers mirror the request's x-header-... headers.
-    """
-    status_code = 200
-    if "x-status" in request.headers:
-        try:
-            status_code = int(request.headers["x-status"])
-        except ValueError:
-            pass
-
-    response_headers = {
-        name[len("x-header-"):]: value
-        for name, value in request.headers.items()
-        if name.startswith("x-header-")
-    }
-
-    return Response(
-        status_code=status_code,
-        headers=response_headers,
-        content=str(request),
-    )
 
 
 class Server:
     def __init__(self, port: int, ipv6: bool = False) -> None:
         self._port = port
         self._ipv6 = ipv6
+        self._app = NotesApp()
 
     async def run(self) -> None:
         family = socket.AF_INET6 if self._ipv6 else socket.AF_INET
@@ -68,7 +44,7 @@ class Server:
                     continue
 
                 for request in requests:
-                    response = _make_response(request)
+                    response = self._app.handle(request)
                     writer.write(
                         encode_response(response, request.http_version).encode())
                 await writer.drain()
