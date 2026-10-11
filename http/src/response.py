@@ -29,9 +29,10 @@ def encode_response(resp: Response, version: str) -> str:
     elif version == '1.0' or version == '1.1':
         status_text = _STATUS_TEXTS.get(resp.status_code)
 
-        if len(resp.headers) != 0:
-            headers = '\r\n'.join([f'{key}: {resp.headers[key]}' for key in resp.headers])
-            return f'HTTP/{version} {resp.status_code} {status_text}\r\n{headers}\r\n\r\n{resp.content}'
-        return f'HTTP/{version} {resp.status_code} {status_text}\r\n\r\n{resp.content}'
+        headers = [f'{key}: {resp.headers[key]}' for key in resp.headers]
+        headers.append(f'Content-Length: {len(resp.content.encode())}')
+
+        header_lines = '\r\n'.join(headers)
+        return f'HTTP/{version} {resp.status_code} {status_text}\r\n{header_lines}\r\n\r\n{resp.content}'
     else:
         raise ValueError('Unknown http version')

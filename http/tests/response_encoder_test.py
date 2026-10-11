@@ -24,6 +24,7 @@ class TestEncodeResponseHttp11:
         resp = Response(status_code=200, content="hello")
         assert encode_response(resp, "1.1") == (
             "HTTP/1.1 200 OK\r\n"
+            "Content-Length: 5\r\n"
             "\r\n"
             "hello")
 
@@ -34,8 +35,13 @@ class TestEncodeResponseHttp11:
         assert encode_response(resp, "1.1") == (
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain\r\n"
+            "Content-Length: 5\r\n"
             "\r\n"
             "hello")
+
+    def test_content_length_counts_bytes(self):
+        resp = Response(status_code=200, content="héllo")
+        assert "Content-Length: 6\r\n" in encode_response(resp, "1.1")
 
 
 class TestEncodeResponseErrors:

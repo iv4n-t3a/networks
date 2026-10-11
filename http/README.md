@@ -27,7 +27,7 @@ python3 src/main.py --port 8080 --ipv6
 ### Tests
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -r requirements-tests.txt
 pytest
 ```
 
