@@ -2,7 +2,7 @@ import asyncio
 import socket
 
 from notes import NotesApp
-from request import ParsingError, parse_http_request
+from request import HttpRequestParser, ParsingError
 from response import encode_response
 
 _READ_CHUNK_SIZE = 64 * 1024
@@ -27,6 +27,7 @@ class Server:
     ) -> None:
         try:
             buffer = b""
+            parser = HttpRequestParser()
 
             while True:
                 chunk = await reader.read(_READ_CHUNK_SIZE)
@@ -36,7 +37,7 @@ class Server:
                 buffer += chunk
 
                 try:
-                    requests = parse_http_request(buffer.decode())
+                    requests = parser.read(buffer.decode())
                 except ParsingError:
                     return
 

@@ -3,11 +3,11 @@
 ### Features
 
 - HTTP/1.1
+- chunk-encoding
+- keep-alive
 
 **TODO**:
 
-- keep-alive
-- chunk-encoding
 - http/2, http/3
 
 ### Run

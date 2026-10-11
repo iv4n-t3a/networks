@@ -1,7 +1,7 @@
 import urllib.parse
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Optional
 
 
 class ParsingError(Exception):
@@ -19,92 +19,134 @@ class Request:
     content: str = ""
 
 
-def parse_http_request(data: str) -> list[Request]:
-    data = data.replace('\r\n', '\n')
+class HttpRequestParser:
+    def __init__(self) -> None:
+        self._buffer = ""
 
-    lines = data.split('\n')
+    def read(self, data: str) -> list[Request]:
+        self._buffer += data
 
-    if len(lines) == 1:
-        return []
+        requests = []
 
-    request_line = lines[0]
+        while request := self._read_http_request():
+            requests.append(request)
 
-    # No http version
-    if len(request_line.split()) == 2:
-        return parse_http_09_request(data)
+        return requests
 
-    http_version = request_line.split()[2].upper()
+    def _read_http_request(self) -> Optional[Request]:
+        lines = self._buffer.split('\r\n')
 
-    if http_version == 'HTTP/1.0':
-        return parse_http_10_request(data)
-    elif http_version == 'HTTP/1.1':
-        return parse_http_11_request(data)
-    else:
-        raise ParsingError("Unknown http version")
+        if len(lines) == 1:
+            return None
+
+        request_line = lines[0]
+
+        if len(request_line.split()) == 2:
+            return self._read_http_09_request()
+        elif len(request_line.split()) != 3:
+            raise ParsingError("Can't parse request line, expected 2 or 3 tokens")
+
+        http_version = request_line.split()[2].upper()
+
+        if http_version in ('HTTP/1.0', 'HTTP/1.1'):
+            return self._read_http_11_request()
+        else:
+            raise ParsingError("Unknown http version")
+
+    def _read_http_09_request(self) -> Optional[Request]:
+        http_method = self._buffer.split()[0].upper()
+
+        if http_method != 'GET':
+            raise ParsingError("HTTP/0.9 is GET-only")
+
+        target = self._buffer.split()[1]
+
+        self._buffer = ""
+
+        return Request(
+            http_version='0.9',
+            http_method='GET',
+            path=extract_path(target),
+            query_params=extract_query_params(target),
+            target=target
+        )
+
+    def _read_http_11_request(self) -> Optional[Request]:
+        if len(self._buffer.split('\r\n\r\n')) < 2:
+            return None
+
+        http_method = self._buffer.split()[0].upper()
+        target = self._buffer.split()[1]
+        http_version = self._buffer.split()[2].upper()
+        headers = extract_headers(self._buffer)
+        content = self._read_http_11_content(headers)
+
+        if content is None:
+            return None
+
+        self._buffer = self._buffer.lstrip()
+
+        return Request(
+            http_version=http_version.split('/')[1],
+            http_method=http_method,
+            path=extract_path(target),
+            query_params=extract_query_params(target),
+            target=target,
+            headers=headers,
+            content=content,
+        )
+
+    def _read_http_11_content(self, headers: Dict[str, str]) -> Optional[str]:
+        if 'content-length' in headers:
+            return self._read_http_11_by_content_length(headers)
+        elif headers.get('transfer-encoding') == 'chunked':
+            return self._read_http_11_chunked_content()
+        else:
+            _, self._buffer = self._buffer.split('\r\n\r\n', 1)
+            return ''
+
+    def _read_http_11_by_content_length(self, headers: Dict[str, str]) -> Optional[str]:
+        _, content = self._buffer.split('\r\n\r\n', 1)
+
+        try:
+            content_lenght = int(headers['content-length'])
+        except:
+            raise ParsingError('Failed to parse content length header')
+
+        if len(content) < content_lenght:
+            return None
+        content, self._buffer = content[:content_lenght], content[content_lenght:]
+        return content
 
 
-def parse_http_09_request(data: str) -> list[Request]:
-    http_method = data.split()[0].upper()
+    def _read_http_11_chunked_content(self) -> Optional[str]:
+        _, body = self._buffer.split('\r\n\r\n', 1)
 
-    if http_method != 'GET':
-        raise ParsingError("HTTP/0.9 is GET-only")
+        chunks = []
+        while True:
+            header_end = body.find('\r\n')
+            if header_end == -1:
+                return None
 
-    target = data.split()[1]
+            try:
+                chunk_size = int(body[:header_end].split(';')[0].strip(), 16)
+            except ValueError:
+                raise ParsingError("Invalid chunk size")
 
-    return [Request(
-        http_version='0.9',
-        http_method='GET',
-        path=extract_path(target),
-        query_params=extract_query_params(target),
-        target=target
-    )]
+            if chunk_size == 0:
+                # Last chunk, needs its CRLF plus the terminating CRLF
+                if len(body) < header_end + 4:
+                    return None
+                self._buffer = body[header_end + 4:]
+                return ''.join(chunks)
 
+            data_start = header_end + 2
+            data_end = data_start + chunk_size
+            if len(body) < data_end + 2:
+                return None
+            chunks.append(body[data_start:data_end])
+            body = body[data_end + 2:]
 
-def parse_http_10_request(data: str) -> list[Request]:
-    # Request + headers + content
-    if len(data.split('\n\n')) < 2:
-        return []
-
-    http_method = data.split()[0].upper()
-    target = data.split()[1]
-    headers = extract_headers(data)
-    content = data.split('\n\n')[1]
-
-    if 'content-length' in headers and int(headers['content-length']) != len(content):
-        return []
-
-    return [Request(
-        http_version='1.0',
-        http_method=http_method,
-        path=extract_path(target),
-        query_params=extract_query_params(target),
-        target=target,
-        headers=headers,
-        content=content,
-    )]
-
-def parse_http_11_request(data: str) -> list[Request]:
-    # Request + headers + content
-    if len(data.split('\n\n')) < 2:
-        return []
-
-    http_method = data.split()[0].upper()
-    target = data.split()[1]
-    headers = extract_headers(data)
-    content = data.split('\n\n')[1]
-
-    if 'content-length' in headers and int(headers['content-length']) != len(content):
-        return []
-
-    return [Request(
-        http_version='1.1',
-        http_method=http_method,
-        path=extract_path(target),
-        query_params=extract_query_params(target),
-        target=target,
-        headers=headers,
-        content=content,
-    )]
 
 def extract_path(target: str) -> str:
     if '?' in target:
@@ -140,9 +182,12 @@ def extract_query_params(target: str) -> Dict[str, str]:
 def extract_headers(data: str) -> Dict[str, str]:
     res = dict()
 
-    for header in data.split("\n")[1:]:
+    for header in data.split("\r\n")[1:]:
         if header == '':
             return res
+
+        if ':' not in header:
+            raise ParsingError("Header without colon")
 
         key, value = header.split(':', 1)
 

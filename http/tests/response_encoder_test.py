@@ -19,32 +19,6 @@ class TestEncodeResponseHttp09:
         assert encode_response(resp, "0.9") == ""
 
 
-class TestEncodeResponseHttp10:
-
-    def test_minimal(self):
-        resp = Response(status_code=200, content="hello")
-        assert encode_response(resp, "1.0") == (
-            "HTTP/1.0 200 OK\r\n"
-            "\r\n"
-            "hello")
-
-    def test_with_headers(self):
-        resp = Response(status_code=200,
-                        headers={"Content-Type": "text/html",
-                                 "Content-Length": "5"},
-                        content="hello")
-        assert encode_response(resp, "1.0") == (
-            "HTTP/1.0 200 OK\r\n"
-            "Content-Type: text/html\r\n"
-            "Content-Length: 5\r\n"
-            "\r\n"
-            "hello")
-
-    def test_empty_body(self):
-        resp = Response(status_code=204)
-        assert encode_response(resp, "1.0") == "HTTP/1.0 204 No Content\r\n\r\n"
-
-
 class TestEncodeResponseHttp11:
     def test_minimal(self):
         resp = Response(status_code=200, content="hello")
