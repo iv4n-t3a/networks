@@ -1,8 +1,11 @@
 #include "server.hpp"
 
 #include "common.hpp"
-#include "parser.hpp"
+#include "config.hpp"
+#include "request_parser.hpp"
 #include "response_builder.hpp"
+
+#include <iostream>
 
 #include <MinimalSocket/core/Address.h>
 
@@ -37,13 +40,14 @@ void Server::Process(const std::string &message,
                      MinimalSocket::Address sender) {
   std::cout << "Got dns query" << std::endl;
 
-  Parser parser(message);
-  ResponseBuilder builder(parser.Identication());
+  RequestParser parser(message);
+  ResponseBuilder builder(parser.Identification());
   auto q_opt = parser.GetNextQuestion();
 
   while (q_opt.has_value()) {
     auto q = q_opt.value();
     builder.AddQuestion(q.domain, q.type, q.cls);
+    std::cout << "Query contains question: " << q.domain << std::endl;
     q_opt = parser.GetNextQuestion();
   }
 
@@ -52,7 +56,12 @@ void Server::Process(const std::string &message,
 
   while (q_opt.has_value()) {
     auto q = q_opt.value();
-    builder.AddResponse(q.domain, q.type, q.cls, 0, "127.0.0.1");
+
+    for (const auto [response_q, response_a] : kDnsConfig) {
+      if (q == response_q) {
+        builder.AddResponse(q.domain, q.type, q.cls, 60, "127.0.0.1");
+      }
+    }
     q_opt = parser.GetNextQuestion();
   }
 
@@ -60,7 +69,7 @@ void Server::Process(const std::string &message,
 
   socket_.sendTo(response, sender);
 
-  std::cout << "finished processing dns query" << std::endl;
+  std::cout << "Finished processing dns query" << std::endl;
 }
 
 } // namespace dns

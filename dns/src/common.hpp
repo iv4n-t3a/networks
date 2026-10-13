@@ -24,14 +24,14 @@ struct PACKED Header {
   };
 
   struct PACKED Flags {
-    bool QR : 1;
-    Opcode opcode : 4;
-    bool AA : 1;
-    bool TC : 1;
-    bool RD : 1;
-    bool RA : 1;
-    int zero : 3;
     RCode rcode : 4;
+    int zero : 3;
+    bool RA : 1;
+    bool RD : 1;
+    bool TC : 1;
+    bool AA : 1;
+    Opcode opcode : 4;
+    bool QR : 1;
   };
 
   uint16_t identification;
@@ -55,10 +55,18 @@ enum class QueryClass {
 };
 
 struct Question {
-
   std::string domain;
   RecordType type;
   QueryClass cls;
 };
+
+struct Answer {
+  std::string response;
+  int ttl;
+};
+
+inline bool operator==(const Question& q1, const Question& q2) {
+  return q1.domain == q2.domain && q1.type == q2.type && q1.cls == q2.cls;
+}
 
 } // namespace dns

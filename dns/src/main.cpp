@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
 
   program.add_argument("--port", "-p")
       .help("UDP port for dns server")
-      .default_value(53)
+      .default_value(1234)
       .scan<'i', int>()
       .nargs(1);
 

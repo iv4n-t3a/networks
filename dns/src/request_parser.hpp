@@ -9,11 +9,11 @@
 
 namespace dns {
 
-class Parser {
+class RequestParser {
 public:
-  Parser(const std::string &data);
+  RequestParser(const std::string &data);
 
-  uint16_t Identication() const { return GetHeader()->identification; }
+  uint16_t Identification() const;
 
   std::optional<Question> GetNextQuestion();
 
@@ -23,8 +23,8 @@ private:
   const Header *GetHeader() const;
   std::optional<std::string_view> GetNextDomainString();
 
-  uint16_t GetNextUint16();
-  uint8_t GetNextUint8();
+  uint16_t ReadUint16();
+  uint8_t ReadUint8();
 
   const std::string &data_;
   size_t pos_ = sizeof(Header);

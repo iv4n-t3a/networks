@@ -15,10 +15,9 @@ if(ENABLE_SANITIZERS)
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
 endif()
 
-set(SOURCES src/main.cpp src/mapper.cpp src/parser.cpp src/response_builder.cpp
-            src/server.cpp)
+set(SOURCES src/main.cpp src/request_parser.cpp src/response_builder.cpp src/server.cpp)
 
-set(HEADERS src/common.hpp src/macros.hpp src/mapper.hpp src/parser.hpp
+set(HEADERS src/common.hpp src/config.hpp src/macros.hpp src/request_parser.hpp
             src/response_builder.hpp src/server.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
@@ -55,3 +54,28 @@ FetchContent_Declare(argparse
                      GIT_REPOSITORY https://github.com/p-ranav/argparse.git)
 FetchContent_MakeAvailable(argparse)
 target_link_libraries(${PROJECT_NAME} PRIVATE argparse)
+
+# Tests
+option(BUILD_TESTING "Build unit tests" ON)
+
+if(BUILD_TESTING)
+  enable_testing()
+
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.15.2)
+  set(INSTALL_GTEST
+      OFF
+      CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+
+  add_executable(${PROJECT_NAME}-tests tests/request_parser_test.cpp
+                                       tests/response_builder_test.cpp
+                                       src/request_parser.cpp src/response_builder.cpp)
+  target_include_directories(${PROJECT_NAME}-tests PRIVATE src)
+  target_link_libraries(${PROJECT_NAME}-tests PRIVATE GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests(${PROJECT_NAME}-tests)
+endif()
