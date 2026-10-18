@@ -1,4 +1,4 @@
-#include "request_parser.hpp"
+#include "message_parser.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -14,17 +14,17 @@ uint16_t SwapBytes(uint16_t num) {
 
 } // namespace
 
-RequestParser::RequestParser(const std::string &data) : data_(data) {}
+MessageParser::MessageParser(const std::string &data) : data_(data) {}
 
-const Header *RequestParser::GetHeader() const {
+const Header *MessageParser::GetHeader() const {
   return reinterpret_cast<const Header *>(data_.data());
 }
 
-uint16_t RequestParser::Identification() const {
+uint16_t MessageParser::Identification() const {
   return SwapBytes(GetHeader()->identification);
 }
 
-std::optional<Question> RequestParser::GetNextQuestion() {
+std::optional<Question> MessageParser::GetNextQuestion() {
   if (question_ == SwapBytes(GetHeader()->questions)) {
     return std::nullopt;
   }
@@ -48,12 +48,12 @@ std::optional<Question> RequestParser::GetNextQuestion() {
   };
 }
 
-void RequestParser::Reset() {
+void MessageParser::Reset() {
   pos_ = sizeof(Header);
   question_ = 0;
 }
 
-std::optional<std::string_view> RequestParser::GetNextDomainString() {
+std::optional<std::string_view> MessageParser::GetNextDomainString() {
   size_t size = ReadUint8();
 
   if (size == 0) {
@@ -66,13 +66,13 @@ std::optional<std::string_view> RequestParser::GetNextDomainString() {
   return res;
 }
 
-uint16_t RequestParser::ReadUint16() {
+uint16_t MessageParser::ReadUint16() {
   uint16_t a = ReadUint8();
   uint16_t b = ReadUint8();
   return (a << 8) | b;
 }
 
-uint8_t RequestParser::ReadUint8() {
+uint8_t MessageParser::ReadUint8() {
   uint8_t res = data_[pos_];
   pos_ += 1;
   return res;

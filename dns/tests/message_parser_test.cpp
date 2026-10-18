@@ -1,4 +1,4 @@
-#include "request_parser.hpp"
+#include "message_parser.hpp"
 
 #include <gtest/gtest.h>
 
@@ -33,21 +33,21 @@ std::string Question(const std::string &labels, uint8_t type, uint8_t cls) {
 
 const std::string kExampleLabels = std::string("\x07") + "example" + "\x03" + "com";
 
-TEST(RequestParser,  Identification) {
+TEST(MessageParser,  Identification) {
   std::string data = MakeQuery(0x1234, 0, "");
-  RequestParser parser(data);
+  MessageParser parser(data);
   EXPECT_EQ(parser.Identification(), 0x1234);
 }
 
-TEST(RequestParser,  NoQuestions) {
+TEST(MessageParser,  NoQuestions) {
   std::string data = MakeQuery(1, 0, "");
-  RequestParser parser(data);
+  MessageParser parser(data);
   EXPECT_FALSE(parser.GetNextQuestion().has_value());
 }
 
-TEST(RequestParser,  SingleQuestionDomain) {
+TEST(MessageParser,  SingleQuestionDomain) {
   std::string data = MakeQuery(1, 1, Question(kExampleLabels, 1, 1));
-  RequestParser parser(data);
+  MessageParser parser(data);
 
   auto q = parser.GetNextQuestion();
   ASSERT_TRUE(q.has_value());
@@ -55,9 +55,9 @@ TEST(RequestParser,  SingleQuestionDomain) {
   EXPECT_FALSE(parser.GetNextQuestion().has_value());
 }
 
-TEST(RequestParser,  SingleQuestionTypeAndClass) {
+TEST(MessageParser,  SingleQuestionTypeAndClass) {
   std::string data = MakeQuery(1, 1, Question(kExampleLabels, 28, 1));
-  RequestParser parser(data);
+  MessageParser parser(data);
 
   auto q = parser.GetNextQuestion();
   ASSERT_TRUE(q.has_value());
@@ -65,11 +65,11 @@ TEST(RequestParser,  SingleQuestionTypeAndClass) {
   EXPECT_EQ(q->cls, QueryClass::IN);
 }
 
-TEST(RequestParser,  MultipleQuestions) {
+TEST(MessageParser,  MultipleQuestions) {
   std::string body = Question(kExampleLabels, 1, 1) +
                      Question(std::string("\x03") + "foo" + "\x03" + "org", 28, 1);
   std::string data = MakeQuery(1, 2, body);
-  RequestParser parser(data);
+  MessageParser parser(data);
 
   auto first = parser.GetNextQuestion();
   auto second = parser.GetNextQuestion();
@@ -82,9 +82,9 @@ TEST(RequestParser,  MultipleQuestions) {
   EXPECT_FALSE(parser.GetNextQuestion().has_value());
 }
 
-TEST(RequestParser,  ResetRestartsIteration) {
+TEST(MessageParser,  ResetRestartsIteration) {
   std::string data = MakeQuery(1, 1, Question(kExampleLabels, 1, 1));
-  RequestParser parser(data);
+  MessageParser parser(data);
 
   ASSERT_TRUE(parser.GetNextQuestion().has_value());
   ASSERT_FALSE(parser.GetNextQuestion().has_value());

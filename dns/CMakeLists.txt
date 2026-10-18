@@ -15,10 +15,10 @@ if(ENABLE_SANITIZERS)
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
 endif()
 
-set(SOURCES src/main.cpp src/request_parser.cpp src/response_builder.cpp src/server.cpp)
+set(SOURCES src/main.cpp src/message_parser.cpp src/message_builder.cpp src/server.cpp)
 
-set(HEADERS src/common.hpp src/config.hpp src/macros.hpp src/request_parser.hpp
-            src/response_builder.hpp src/server.hpp)
+set(HEADERS src/common.hpp src/config.hpp src/macros.hpp src/message_parser.hpp
+            src/message_builder.hpp src/server.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
@@ -70,9 +70,9 @@ if(BUILD_TESTING)
       CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(googletest)
 
-  add_executable(${PROJECT_NAME}-tests tests/request_parser_test.cpp
-                                       tests/response_builder_test.cpp
-                                       src/request_parser.cpp src/response_builder.cpp)
+  add_executable(${PROJECT_NAME}-tests tests/message_parser_test.cpp
+                                       tests/message_builder_test.cpp
+                                       src/message_parser.cpp src/message_builder.cpp)
   target_include_directories(${PROJECT_NAME}-tests PRIVATE src)
   target_link_libraries(${PROJECT_NAME}-tests PRIVATE GTest::gtest_main)
 

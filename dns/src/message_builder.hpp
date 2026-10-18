@@ -6,9 +6,9 @@
 
 namespace dns {
 
-class ResponseBuilder {
+class MessageBuilder {
 public:
-  ResponseBuilder(size_t id);
+  MessageBuilder(size_t id);
 
   void AddQuestion(const std::string &domain, RecordType type, QueryClass cls);
   void AddResponse(const std::string &domain, RecordType type, QueryClass cls,

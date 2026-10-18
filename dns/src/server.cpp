@@ -2,8 +2,8 @@
 
 #include "common.hpp"
 #include "config.hpp"
-#include "request_parser.hpp"
-#include "response_builder.hpp"
+#include "message_parser.hpp"
+#include "message_builder.hpp"
 
 #include <iostream>
 
@@ -40,8 +40,8 @@ void Server::Process(const std::string &message,
                      MinimalSocket::Address sender) {
   std::cout << "Got dns query" << std::endl;
 
-  RequestParser parser(message);
-  ResponseBuilder builder(parser.Identification());
+  MessageParser parser(message);
+  MessageBuilder builder(parser.Identification());
   auto q_opt = parser.GetNextQuestion();
 
   while (q_opt.has_value()) {

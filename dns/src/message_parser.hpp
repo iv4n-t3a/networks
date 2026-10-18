@@ -9,9 +9,9 @@
 
 namespace dns {
 
-class RequestParser {
+class MessageParser {
 public:
-  RequestParser(const std::string &data);
+  MessageParser(const std::string &data);
 
   uint16_t Identification() const;
 

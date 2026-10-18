@@ -1,4 +1,4 @@
-#include "response_builder.hpp"
+#include "message_builder.hpp"
 
 #include "common.hpp"
 
@@ -57,7 +57,7 @@ void WriteIp(std::stringstream &ss, const std::string &ip) {
 
 } // namespace
 
-ResponseBuilder::ResponseBuilder(size_t id) {
+MessageBuilder::MessageBuilder(size_t id) {
   std::memset(&header_, 0, sizeof(header_));
 
   header_.identification = id;
@@ -66,7 +66,7 @@ ResponseBuilder::ResponseBuilder(size_t id) {
   header_.flags.rcode = Header::RCode::NO_ERROR;
 }
 
-void ResponseBuilder::AddQuestion(const std::string &domain, RecordType type,
+void MessageBuilder::AddQuestion(const std::string &domain, RecordType type,
                                   QueryClass cls) {
   header_.questions += 1;
   WriteDomain(message_, domain);
@@ -74,7 +74,7 @@ void ResponseBuilder::AddQuestion(const std::string &domain, RecordType type,
   WriteUint16(message_, static_cast<uint16_t>(cls));
 }
 
-void ResponseBuilder::AddResponse(const std::string &domain, RecordType type,
+void MessageBuilder::AddResponse(const std::string &domain, RecordType type,
                                   QueryClass cls, int ttl,
                                   const std::string &response) {
   header_.answers += 1;
@@ -94,7 +94,7 @@ void ResponseBuilder::AddResponse(const std::string &domain, RecordType type,
   }
 }
 
-std::string ResponseBuilder::BuildResponse() const {
+std::string MessageBuilder::BuildResponse() const {
   std::stringstream res;
 
   WriteHeader(res, header_);
