@@ -37,7 +37,7 @@ void Server::Run() {
 }
 
 void Server::Process(const std::string &message,
-                     MinimalSocket::Address sender) {
+                     MinimalSocket::Address sender) try {
   std::cout << "Got dns query" << std::endl;
 
   MessageParser parser(message);
@@ -59,7 +59,8 @@ void Server::Process(const std::string &message,
 
     for (const auto [response_q, response_a] : kDnsConfig) {
       if (q == response_q) {
-        builder.AddResponse(q.domain, q.type, q.cls, 60, "127.0.0.1");
+        builder.AddResponse(q.domain, q.type, q.cls, response_a.ttl,
+                            response_a.response);
       }
     }
     q_opt = parser.GetNextQuestion();
@@ -70,6 +71,11 @@ void Server::Process(const std::string &message,
   socket_.sendTo(response, sender);
 
   std::cout << "Finished processing dns query" << std::endl;
+} catch (const std::exception& ex) {
+  std::cout << "Failed to process dns query: " << ex.what() << std::endl;
+
+  // TODO: propper error handling
+  std::cout << "Error handling is not implemented yet, ignoring mailformed query" << std::endl;
 }
 
 } // namespace dns

@@ -3,8 +3,13 @@
 #include "common.hpp"
 
 #include <sstream>
+#include <stdexcept>
 
 namespace dns {
+
+struct FailedToEncodeResponse : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
 
 class MessageBuilder {
 public:

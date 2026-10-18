@@ -26,6 +26,26 @@ const auto kDnsConfig = std::to_array({
             .response = "192.168.2.1",
             .ttl = 60,
         }),
+    std::make_pair(
+        Question{
+            .domain = "example.com",
+            .type = RecordType::AAAA,
+            .cls = QueryClass::IN,
+        },
+        Answer{
+            .response = "2001:db8:0:0:0:0:0:1",
+            .ttl = 60,
+        }),
+    std::make_pair(
+        Question{
+            .domain = "eine-biene.com",
+            .type = RecordType::AAAA,
+            .cls = QueryClass::IN,
+        },
+        Answer{
+            .response = "2001:db8:0:0:0:0:0:2",
+            .ttl = 60,
+        }),
 });
 
 } // namespace dns

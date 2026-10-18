@@ -98,5 +98,67 @@ TEST(MessageBuilder, ReplyQuestionMatchesQuery) {
   EXPECT_EQ(res.substr(kHeaderSize), query.substr(kHeaderSize));
 }
 
+TEST(MessageBuilder, AddResponseEncodesAaaaRecord) {
+  MessageBuilder builder(1);
+  builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN, 0x01020304,
+                      "2001:db8:0:0:0:0:0:1");
+  std::string res = builder.BuildResponse();
+
+  std::string expected = std::string("\x01") + "a" + "\x02" + "io" +
+                         std::string("\x00", 1) + std::string("\x00\x1c", 2) +
+                         std::string("\x00\x01", 2) +
+                         std::string("\x01\x02\x03\x04", 4) +
+                         std::string("\x00\x10", 2) +
+                         std::string("\x20\x01\x0d\xb8\x00\x00\x00\x00"
+                                     "\x00\x00\x00\x00\x00\x00\x00\x01",
+                                     16);
+  EXPECT_EQ(res.substr(kHeaderSize), expected);
+}
+
+TEST(MessageBuilder, MalformedIpv4ResponseThrows) {
+  MessageBuilder builder(1);
+
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
+                                   "127.0.0"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
+                                   "127.0.0.1.1"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
+                                   "300.0.0.1"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
+                                   "127.0.a.1"),
+               FailedToEncodeResponse);
+}
+
+TEST(MessageBuilder, MalformedIpv6ResponseThrows) {
+  MessageBuilder builder(1);
+
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
+                                   60, "2001:db8::1"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
+                                   60, "1:2:3:4:5:6:7:8:9"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
+                                   60, "12345:2:3:4:5:6:7:8"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
+                                   60, "zzzz:2:3:4:5:6:7:8"),
+               FailedToEncodeResponse);
+}
+
+TEST(MessageBuilder, ResponseAddressMismatchingTypeThrows) {
+  MessageBuilder builder(1);
+
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
+                                   60, "127.0.0.1"),
+               FailedToEncodeResponse);
+  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
+                                   "2001:db8:0:0:0:0:0:1"),
+               FailedToEncodeResponse);
+}
+
 } // namespace
 } // namespace dns

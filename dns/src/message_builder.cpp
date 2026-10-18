@@ -4,8 +4,8 @@
 
 #include <cstdint>
 #include <cstring>
+#include <format>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 namespace dns {
@@ -47,12 +47,57 @@ void WriteHeader(std::stringstream &ss, const Header &header) {
   WriteUint16(ss, header.additional_RR);
 }
 
-void WriteIp(std::stringstream &ss, const std::string &ip) {
+void WriteIpv4(std::stringstream &ss, const std::string &ip) try {
   std::stringstream ipstream(ip);
   std::string octet;
+  size_t octets_count = 0;
+
   while (std::getline(ipstream, octet, '.')) {
-    WriteUint8(ss, static_cast<uint8_t>(std::stoi(octet)));
+    int32_t val = std::stoi(octet);
+
+    if (val < 0 || val >= std::numeric_limits<uint8_t>::max()) {
+      throw FailedToEncodeResponse(
+          std::format("Invalid ipv4 {}: octet {} is too big", ip, octet));
+    }
+
+    WriteUint8(ss, static_cast<uint8_t>(val));
+    octets_count += 1;
   }
+
+  if (octets_count != 4) {
+    throw FailedToEncodeResponse(
+        std::format("Invalid ipv4 {}: Ipv4 must have 4 octets", ip));
+  }
+
+} catch (const std::exception &ex) {
+  throw FailedToEncodeResponse(
+      std::format("Invalid ipv4 {}: {}", ip, ex.what()));
+}
+
+void WriteIpv6(std::stringstream &ss, const std::string &ip) try {
+  std::stringstream ipstream(ip);
+  std::string hextet;
+  size_t hextet_count = 0;
+
+  while (std::getline(ipstream, hextet, ':')) {
+    int32_t val = std::stoi(hextet, 0, 16);
+
+    if (val < 0 || val >= std::numeric_limits<uint16_t>::max()) {
+      throw FailedToEncodeResponse(
+          std::format("Invalid ipv6 {}: hextet {} is too big", ip, hextet));
+    }
+
+    WriteUint16(ss, static_cast<uint16_t>(val));
+    hextet_count += 1;
+  }
+
+  if (hextet_count != 8) {
+    throw FailedToEncodeResponse(
+        std::format("Invalid ipv6 {}: Ipv6 must have 8 hextets", ip));
+  }
+} catch (const std::exception &ex) {
+  throw FailedToEncodeResponse(
+      std::format("Invalid ipv6 {}: {}", ip, ex.what()));
 }
 
 } // namespace
@@ -67,7 +112,7 @@ MessageBuilder::MessageBuilder(size_t id) {
 }
 
 void MessageBuilder::AddQuestion(const std::string &domain, RecordType type,
-                                  QueryClass cls) {
+                                 QueryClass cls) {
   header_.questions += 1;
   WriteDomain(message_, domain);
   WriteUint16(message_, static_cast<uint16_t>(type));
@@ -75,22 +120,27 @@ void MessageBuilder::AddQuestion(const std::string &domain, RecordType type,
 }
 
 void MessageBuilder::AddResponse(const std::string &domain, RecordType type,
-                                  QueryClass cls, int ttl,
-                                  const std::string &response) {
+                                 QueryClass cls, int ttl,
+                                 const std::string &response) {
   header_.answers += 1;
   WriteDomain(message_, domain);
   WriteUint16(message_, static_cast<uint16_t>(type));
   WriteUint16(message_, static_cast<uint16_t>(cls));
   WriteUint32(message_, static_cast<uint32_t>(ttl));
 
-  if (type == RecordType::A) {
-    WriteUint16(message_, 4);
-    WriteIp(message_, response);
-  } else if (type == RecordType::AAAA) {
-    throw std::runtime_error("AAAA records are not implemented now");
-  } else {
-    WriteUint16(message_, static_cast<uint16_t>(response.size()));
-    message_ << response;
+  switch (type) {
+  case RecordType::A: {
+    const int kIpv4AddressSize = 4;
+    WriteUint16(message_, kIpv4AddressSize);
+    WriteIpv4(message_, response);
+    break;
+  }
+  case RecordType::AAAA: {
+    const int kIpv6AddressSize = 16;
+    WriteUint16(message_, kIpv6AddressSize);
+    WriteIpv6(message_, response);
+    break;
+  }
   }
 }
 
