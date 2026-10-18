@@ -49,7 +49,8 @@ TEST(MessageBuilder, CountsAreInNetworkByteOrder) {
   MessageBuilder builder(1);
   builder.AddQuestion("a.com", RecordType::A, QueryClass::IN);
   builder.AddQuestion("b.com", RecordType::AAAA, QueryClass::IN);
-  builder.AddResponse("a.com", RecordType::A, QueryClass::IN, 0, "127.0.0.1");
+  builder.AddResponse("a.com", RecordType::A, QueryClass::IN, 0,
+                      std::string("\x7f\x00\x00\x01", 4));
   std::string res = builder.BuildResponse();
 
   EXPECT_EQ(GetUInt8(res, 4), 0);
@@ -71,7 +72,8 @@ TEST(MessageBuilder, AddQuestionEncodesDomainTypeAndClass) {
 
 TEST(MessageBuilder, AddResponseEncodesRecord) {
   MessageBuilder builder(1);
-  builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 0x01020304, "127.0.0.1");
+  builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 0x01020304,
+                      std::string("\x7f\x00\x00\x01", 4));
   std::string res = builder.BuildResponse();
 
   std::string expected = std::string("\x01") + "a" + "\x02" + "io" +
@@ -101,7 +103,9 @@ TEST(MessageBuilder, ReplyQuestionMatchesQuery) {
 TEST(MessageBuilder, AddResponseEncodesAaaaRecord) {
   MessageBuilder builder(1);
   builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN, 0x01020304,
-                      "2001:db8:0:0:0:0:0:1");
+                      std::string("\x20\x01\x0d\xb8\x00\x00\x00\x00"
+                                  "\x00\x00\x00\x00\x00\x00\x00\x01",
+                                  16));
   std::string res = builder.BuildResponse();
 
   std::string expected = std::string("\x01") + "a" + "\x02" + "io" +
@@ -113,51 +117,6 @@ TEST(MessageBuilder, AddResponseEncodesAaaaRecord) {
                                      "\x00\x00\x00\x00\x00\x00\x00\x01",
                                      16);
   EXPECT_EQ(res.substr(kHeaderSize), expected);
-}
-
-TEST(MessageBuilder, MalformedIpv4ResponseThrows) {
-  MessageBuilder builder(1);
-
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
-                                   "127.0.0"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
-                                   "127.0.0.1.1"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
-                                   "300.0.0.1"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
-                                   "127.0.a.1"),
-               FailedToEncodeResponse);
-}
-
-TEST(MessageBuilder, MalformedIpv6ResponseThrows) {
-  MessageBuilder builder(1);
-
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
-                                   60, "2001:db8::1"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
-                                   60, "1:2:3:4:5:6:7:8:9"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
-                                   60, "12345:2:3:4:5:6:7:8"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
-                                   60, "zzzz:2:3:4:5:6:7:8"),
-               FailedToEncodeResponse);
-}
-
-TEST(MessageBuilder, ResponseAddressMismatchingTypeThrows) {
-  MessageBuilder builder(1);
-
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::AAAA, QueryClass::IN,
-                                   60, "127.0.0.1"),
-               FailedToEncodeResponse);
-  EXPECT_THROW(builder.AddResponse("a.io", RecordType::A, QueryClass::IN, 60,
-                                   "2001:db8:0:0:0:0:0:1"),
-               FailedToEncodeResponse);
 }
 
 } // namespace

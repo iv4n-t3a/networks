@@ -1,51 +1,19 @@
 #pragma once
 
 #include "common.hpp"
-#include <array>
+
+#include <stdexcept>
+#include <unordered_map>
+#include <vector>
 
 namespace dns {
 
-const auto kDnsConfig = std::to_array({
-    std::make_pair(
-        Question{
-            .domain = "example.com",
-            .type = RecordType::A,
-            .cls = QueryClass::IN,
-        },
-        Answer{
-            .response = "127.0.0.1",
-            .ttl = 60,
-        }),
-    std::make_pair(
-        Question{
-            .domain = "eine-biene.com",
-            .type = RecordType::A,
-            .cls = QueryClass::IN,
-        },
-        Answer{
-            .response = "192.168.2.1",
-            .ttl = 60,
-        }),
-    std::make_pair(
-        Question{
-            .domain = "example.com",
-            .type = RecordType::AAAA,
-            .cls = QueryClass::IN,
-        },
-        Answer{
-            .response = "2001:db8:0:0:0:0:0:1",
-            .ttl = 60,
-        }),
-    std::make_pair(
-        Question{
-            .domain = "eine-biene.com",
-            .type = RecordType::AAAA,
-            .cls = QueryClass::IN,
-        },
-        Answer{
-            .response = "2001:db8:0:0:0:0:0:2",
-            .ttl = 60,
-        }),
-});
+struct ParseError : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
+std::unordered_map<Question, std::vector<Answer>> ParseConfig(const std::string &config);
+
+std::unordered_map<Question, std::vector<Answer>> ReadAndParseConfig(const std::string &path);
 
 } // namespace dns

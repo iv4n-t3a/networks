@@ -15,10 +15,11 @@ if(ENABLE_SANITIZERS)
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${SANITIZER_FLAGS}")
 endif()
 
-set(SOURCES src/main.cpp src/message_parser.cpp src/message_builder.cpp src/server.cpp)
+set(SOURCES src/config.cpp src/io.cpp src/main.cpp src/message_parser.cpp
+            src/message_builder.cpp src/server.cpp)
 
-set(HEADERS src/common.hpp src/config.hpp src/macros.hpp src/message_parser.hpp
-            src/message_builder.hpp src/server.hpp)
+set(HEADERS src/common.hpp src/config.hpp src/io.hpp src/macros.hpp
+            src/message_parser.hpp src/message_builder.hpp src/server.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
@@ -55,6 +56,12 @@ FetchContent_Declare(argparse
 FetchContent_MakeAvailable(argparse)
 target_link_libraries(${PROJECT_NAME} PRIVATE argparse)
 
+# Json parser
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+FetchContent_MakeAvailable(json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
 # Tests
 option(BUILD_TESTING "Build unit tests" ON)
 
@@ -72,8 +79,10 @@ if(BUILD_TESTING)
 
   add_executable(${PROJECT_NAME}-tests tests/message_parser_test.cpp
                                        tests/message_builder_test.cpp
-                                       src/message_parser.cpp src/message_builder.cpp)
+                                       tests/config_test.cpp
+                                       src/config.cpp src/io.cpp src/message_parser.cpp src/message_builder.cpp)
   target_include_directories(${PROJECT_NAME}-tests PRIVATE src)
+  target_link_libraries(${PROJECT_NAME}-tests PRIVATE nlohmann_json::nlohmann_json)
   target_link_libraries(${PROJECT_NAME}-tests PRIVATE GTest::gtest_main)
 
   include(GoogleTest)

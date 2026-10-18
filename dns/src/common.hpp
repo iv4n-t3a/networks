@@ -3,6 +3,8 @@
 #include "macros.hpp"
 
 #include <cstdint>
+#include <format>
+#include <functional>
 #include <string>
 
 namespace dns {
@@ -65,8 +67,17 @@ struct Answer {
   int ttl;
 };
 
-inline bool operator==(const Question& q1, const Question& q2) {
+inline bool operator==(const Question &q1, const Question &q2) {
   return q1.domain == q2.domain && q1.type == q2.type && q1.cls == q2.cls;
 }
 
 } // namespace dns
+
+namespace std {
+template <> struct hash<dns::Question> {
+  inline size_t operator()(const dns::Question &q) const noexcept {
+    return hash<std::string>()(std::format("{}|{}|{}", static_cast<int>(q.cls),
+                                           static_cast<int>(q.type), q.domain));
+  }
+};
+} // namespace std

@@ -1,0 +1,22 @@
+{
+  "example.com": [
+    {
+      "type": "A",
+      "response": "127.0.0.1"
+    },
+    {
+      "type": "AAAA",
+      "response": "2001:db8:0:0:0:0:0:1"
+    }
+  ],
+  "eine-biene.com": [
+    {
+      "type": "A",
+      "response": "192.168.2.1"
+    },
+    {
+      "type": "AAAA",
+      "response": "2001:db8:0:0:0:0:0:2"
+    }
+  ]
+}

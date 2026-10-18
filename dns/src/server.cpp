@@ -1,7 +1,6 @@
 #include "server.hpp"
 
 #include "common.hpp"
-#include "config.hpp"
 #include "message_parser.hpp"
 #include "message_builder.hpp"
 
@@ -11,10 +10,12 @@
 
 namespace dns {
 
-Server::Server(int port, size_t threads, bool ipv6)
-    : socket_(port, ipv6 ? MinimalSocket::AddressFamily::IP_V6
-                         : MinimalSocket::AddressFamily::IP_V4),
-      thread_pool_(threads) {}
+Server::Server(
+    int port, const std::unordered_map<Question, std::vector<Answer>> &config,
+    size_t threads, bool ipv6)
+    : config_(config), thread_pool_(threads),
+      socket_(port, ipv6 ? MinimalSocket::AddressFamily::IP_V6
+                         : MinimalSocket::AddressFamily::IP_V4) {}
 
 Server::~Server() { socket_.shutDown(); }
 
@@ -57,10 +58,12 @@ void Server::Process(const std::string &message,
   while (q_opt.has_value()) {
     auto q = q_opt.value();
 
-    for (const auto [response_q, response_a] : kDnsConfig) {
+    for (const auto &[response_q, answers] : config_) {
       if (q == response_q) {
-        builder.AddResponse(q.domain, q.type, q.cls, response_a.ttl,
-                            response_a.response);
+        for (const auto &answer : answers) {
+          builder.AddResponse(q.domain, q.type, q.cls, answer.ttl,
+                              answer.response);
+        }
       }
     }
     q_opt = parser.GetNextQuestion();
