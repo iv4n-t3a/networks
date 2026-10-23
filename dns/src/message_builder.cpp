@@ -58,21 +58,8 @@ void MessageBuilder::AddResponse(const std::string &domain, RecordType type,
   WriteUint16(message_, static_cast<uint16_t>(type));
   WriteUint16(message_, static_cast<uint16_t>(cls));
   WriteUint32(message_, static_cast<uint32_t>(ttl));
-
-  switch (type) {
-  case RecordType::A: {
-    const int kIpv4AddressSize = 4;
-    WriteUint16(message_, kIpv4AddressSize);
-    message_ << response;
-    break;
-  }
-  case RecordType::AAAA: {
-    const int kIpv6AddressSize = 16;
-    WriteUint16(message_, kIpv6AddressSize);
-    message_ << response;
-    break;
-  }
-  }
+  WriteUint16(message_, response.size());
+  message_ << response;
 }
 
 std::string MessageBuilder::BuildResponse() const {
